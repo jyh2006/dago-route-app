@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Multi-stop Route Optimizer</title>
+
+  <!-- Kakao Map JS SDK (use your JavaScript key here, NOT the REST key) -->
+  <script
+    type="text/javascript"
+    src="//dapi.kakao.com/v2/maps/sdk.js?appkey=8b7b21da7e0d2bd017923a63babcf36f&libraries=services"
+  ></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      background: #f4f6fb;
+    }
+
+    .hidden { display: none !important; }
+
+    #app {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Generic screens */
+    .screen {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* 1) HOME SCREEN --------------------------------------------------- */
+
+    .screen-home {
+      padding: 24px 24px 32px;
+      box-sizing: border-box;
+    }
+
+    .home-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #4c55ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 22px;
+      box-shadow: 0 8px 20px rgba(76, 85, 255, 0.3);
+    }
+
+    .brand-name {
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .brand-sub {
+      font-size: 13px;
+      color: #868e96;
+    }
+
+    .icon-button {
+      border: none;
+      background: #ffffff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+      cursor: pointer;
+    }
+
+    .home-time-block {
+      margin-top: 32px;
+      margin-bottom: 16px;
+    }
+
+    .home-time {
+      font-size: 36px;
+      font-weight: 600;
+    }
+
+    .home-date {
+      font-size: 14px;
+      color: #868e96;
+    }
+
+    .home-card {
+      margin-top: 12px;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 20px 20px 16px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    .home-card-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .home-card-label {
+      font-size: 13px;
+      color: #868e96;
+    }
+
+    .home-card-main {
+      margin-top: 4px;
+      font-size: 32px;
+      font-weight: 700;
+      color: #4c55ff;
+    }
+
+    .home-card-secondary {
+      margin-top: 4px;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .home-card-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 20px;
+      background: #f2f0ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+    }
+
+    .home-card-divider {
+      margin: 14px 0;
+      height: 1px;
+      background: #f1f3f5;
+    }
+
+    .stops-input-box {
+      margin-top: 24px;
+    }
+
+    .stops-label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 13px;
+      color: #868e96;
+    }
+
+    .stops-textarea {
+      width: 100%;
+      height: 100px;
+      border-radius: 16px;
+      border: none;
+      padding: 12px;
+      font-size: 14px;
+      box-sizing: border-box;
+      resize: vertical;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    }
+
+    .primary-button {
+      margin-top: 28px;
+      width: 100%;
+      border-radius: 22px;
+      border: none;
+      padding: 18px 20px;
+      font-size: 17px;
+      font-weight: 600;
+      color: #ffffff;
+      background: linear-gradient(135deg, #4c55ff, #a445ff);
+      box-shadow: 0 14px 30px rgba(76, 85, 255, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .primary-icon { font-size: 18px; }
+
+    .secondary-button {
+      margin-top: 12px;
+      width: 100%;
+      border-radius: 22px;
+      padding: 16px 20px;
+      border: 1px solid #dee2e6;
+      background: #ffffff;
+      font-size: 15px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .secondary-icon { font-size: 18px; }
+
+    /* 2) LOADING SCREEN ------------------------------------------------ */
+
+    .screen-loading .loading-gradient {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #4c55ff, #a445ff);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading-content {
+      text-align: center;
+      color: #e7e9ff;
+    }
+
+    .loading-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+
+    .loading-title {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .loading-sub {
+      font-size: 15px;
+      opacity: 0.9;
+    }
+
+    /* 3) NAVIGATION SCREEN --------------------------------------------- */
+
+    .screen-nav {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .nav-top {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 14px 18px 6px;
+    }
+
+    .nav-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .circle-button {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: #ffffff;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+
+    .nav-progress-pill {
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      font-size: 14px;
+    }
+
+    .nav-main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr) 64px;
+      gap: 0;
+    }
+
+    /* left */
+    .nav-left {
+      background: linear-gradient(180deg, #4c55ff, #3226b5);
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 40px 16px 24px;
+      box-sizing: border-box;
+
+      /* NEW: make the '다음' button position relative to this panel
+         and reserve space at the bottom so it doesn't clash visually */
+      position: relative;
+      padding-bottom: 90px;
+    }
+
+    .nav-direction-card {
+      width: 80px;
+      height: 80px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .nav-arrow {
+      font-size: 40px;
+    }
+
+    .nav-distance-main {
+      font-size: 36px;
+      font-weight: 700;
+    }
+
+    .nav-distance-unit {
+      font-size: 16px;
+      margin-left: 4px;
+    }
+
+    .nav-distance-sub {
+      margin-top: 4px;
+      font-size: 15px;
+    }
+
+    .nav-next-step-box {
+      position: absolute;
+      bottom: 24px;
+      left: 16px;
+      right: 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.15);
+      padding: 10px;
+      font-size: 13px;
+
+      /* NEW for button behaviour / nicer look */
+      border: none;
+      outline: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      background: rgba(255,255,255,0.2);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+    }
+
+    .nav-next-label {
+      opacity: 0.85;
+      margin-bottom: 2px;
+    }
+
+    .nav-next-info {
+      font-weight: 500;
+    }
+
+    /* map */
+    .nav-map-wrapper {
+      background: #f8f9fa;
+    }
+
+    .nav-map {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* right toolbar */
+    .nav-right-toolbar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 80px;
+      gap: 12px;
+    }
+
+    .toolbar-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 16px;
+      border: none;
+      background: #ffffff;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+      cursor: pointer;
+    }
+
+    /* bottom sheet */
+    .nav-bottom-sheet {
+      padding: 16px 20px 20px;
+      border-radius: 24px 24px 0 0;
+      background: #ffffff;
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.10);
+    }
+
+    .nav-bottom-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-bottom-label {
+      font-size: 13px;
+      color: #868e96;
+    }
+
+    .nav-bottom-main {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .nav-voice-btn {
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      border: none;
+      background: #4c55ff;
+      color: #ffffff;
+      font-size: 24px;
+      box-shadow: 0 10px 26px rgba(76, 85, 255, 0.6);
+      cursor: pointer;
+    }
+
+    .nav-bottom-right {
+      text-align: right;
+    }
+
+    .nav-destination-info {
+      margin-top: 14px;
+    }
+
+    .nav-dest-line {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .nav-dest-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .nav-dest-sub {
+      font-size: 13px;
+      color: #868e96;
+    }
+
+    .nav-complete-btn {
+      margin-top: 16px;
+      width: 100%;
+      border-radius: 999px;
+      padding: 14px 20px;
+      border: none;
+      background: #12b886;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      box-shadow: 0 12px 28px rgba(18, 184, 134, 0.5);
+      cursor: pointer;
+    }
+
+    .nav-progress-track {
+      width: 100%;
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .nav-progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4c55ff, #a445ff);
+      border-radius: inherit;
+      transition: width 0.25s ease-out;
+    }
+    .stop-marker {
+      min-width: 26px;
+      height: 26px;
+      padding: 0 4px;
+      border-radius: 999px;
+      background: #4c55ff;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+      border: 2px solid #ffffff;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+    }
+    .stop-marker.stop-start {
+      background: #6b7280; /* 출발지용 중간 회색 (원하는 색으로 바꿔도 됨) */
+    }
+
+    .stop-marker.stop-done {
+      background: #12b886;   /* same green as 배송 완료 버튼 */
+    }
+
+    /* 4) DONE SCREEN ---------------------------------------------------- */
+
+    .screen-done {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e6fff3;
+    }
+
+    .done-wrapper {
+      text-align: center;
+    }
+
+    /* big green pill with check icon */
+    .done-pill {
+      width: 260px;
+      height: 140px;
+      border-radius: 999px;
+      background: #12b886;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 32px;
+      box-shadow: 0 20px 45px rgba(18, 184, 134, 0.55);
+    }
+
+    .done-pill-icon {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 4px solid #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      color: #ffffff;
+    }
+
+    /* main title & summary text under the pill */
+    .done-main-title {
+      font-size: 26px;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .done-main-sub {
+      font-size: 16px;
+      color: #4b5563;
+    }
+
+    /* button at bottom */
+    .done-main-btn {
+      margin-top: 28px;
+      padding: 14px 32px;
+      border-radius: 999px;
+      border: none;
+      background: #4c55ff;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 16px 32px rgba(76, 85, 255, 0.45);
+    }
+
+  </style>
+</head>
+<body>
+  <div id="app">
+
+    <!-- 1) HOME SCREEN -->
+    <section id="screen-home" class="screen screen-home">
+      <header class="home-header">
+        <div class="brand">
+          <div class="brand-logo">⚡</div>
+          <div class="brand-text">
+            <div class="brand-name">DAGO</div>
+            <div class="brand-sub">다고</div>
+          </div>
+        </div>
+        <button class="icon-button" id="settingsBtn">⚙️</button>
+      </header>
+
+      <div class="home-time-block">
+        <div class="home-time" id="homeTime">오전 01:31</div>
+        <div class="home-date" id="homeDate">12월 7일 (일)</div>
+      </div>
+
+      <div class="home-card">
+        <div class="home-card-row">
+          <div>
+            <div class="home-card-label">오늘의 배송지</div>
+            <div class="home-card-main" id="todayStopsCount">0</div>
+          </div>
+          <div class="home-card-icon">📦</div>
+        </div>
+        <div class="home-card-divider"></div>
+        <div class="home-card-row">
+          <div>
+            <div class="home-card-label">총 송장</div>
+            <div class="home-card-secondary" id="totalParcels">0건</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- For now, a simple textarea for stops (you can replace later with a nicer UI) -->
+      <div class="stops-input-box">
+        <label class="stops-label">배송지 목록 (한 줄에 한 개)</label>
+        <textarea id="stopsInput" class="stops-textarea"
+          placeholder="경복궁역&#10;서울역&#10;남산서울타워&#10;잠실종합운동장역"></textarea>
+      </div>
+
+      <button id="startRouteBtn" class="primary-button">
+        <span class="primary-icon">➤</span>
+        <span>경로 안내 시작</span>
+      </button>
+
+      <button id="editStopsBtn" class="secondary-button">
+        <span class="secondary-icon">📦</span>
+        <span>송장 추가/편집</span>
+      </button>
+    </section>
+
+    <!-- 2) LOADING SCREEN -->
+    <section id="screen-loading" class="screen screen-loading hidden">
+      <div class="loading-gradient">
+        <div class="loading-content">
+          <div class="loading-icon">➤</div>
+          <div class="loading-title">최적 경로 계산 중…</div>
+          <div class="loading-sub">AI가 최적의 배송 순서를 찾고 있습니다</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3) NAVIGATION SCREEN -->
+    <section id="screen-nav" class="screen screen-nav hidden">
+      <header class="nav-top">
+        <div class="nav-top-row">
+          <button id="navBackBtn" class="circle-button">←</button>
+          <div class="nav-progress-pill">
+            <span id="navProgressText">0 / 0 완료</span>
+          </div>
+        </div>
+        <div class="nav-progress-track">
+          <div class="nav-progress-fill" id="navProgressFill"></div>
+        </div>
+      </header>
+
+      <div class="nav-main">
+        <!-- Left column: next turn + distance -->
+        <div class="nav-left">
+          <!-- 클릭해서 다음 step 으로 넘어가는 버튼 -->
+          <div class="nav-direction-card">
+            <div class="nav-arrow" id="navArrow">↑</div>
+          </div>
+
+          <!-- 현재 step 거리 / 안내 문구 -->
+          <div class="nav-distance-main">
+            <span id="currentStepDistance">0</span><span class="nav-distance-unit">m</span>
+          </div>
+          <div class="nav-distance-sub" id="currentStepInstruction">직진</div>
+
+          <!-- 다음 step 미리보기 -->
+          <button class="nav-next-step-box" id="stepAdvanceBtn" type="button">
+            <div class="nav-next-label">다음</div>
+            <div class="nav-next-info">
+              <span id="nextDistance">-</span>
+              <span id="nextInstruction"></span>
+            </div>
+          </button>
+        </div>
+
+
+        <!-- Center: MAP -->
+        <div class="nav-map-wrapper">
+          <div id="map" class="nav-map"></div>
+        </div>
+
+        <!-- Right: vertical icons (stubbed) -->
+        <div class="nav-right-toolbar">
+          <button class="toolbar-btn">🚧</button>
+          <button class="toolbar-btn">⚠️</button>
+          <button class="toolbar-btn">🚌</button>
+          <button class="toolbar-btn">🏗️</button>
+          <button class="toolbar-btn">ℹ️</button>
+          <button class="toolbar-btn">🗺️</button>
+        </div>
+      </div>
+
+      <!-- Bottom sheet -->
+      <div class="nav-bottom-sheet">
+        <div class="nav-bottom-row">
+          <div>
+            <div class="nav-bottom-label">남은 거리</div>
+            <div class="nav-bottom-main" id="remainingDistance">0 km</div>
+          </div>
+          <button id="voiceBtn" class="nav-voice-btn">🎤</button>
+          <div class="nav-bottom-right">
+            <div class="nav-bottom-label">도착 예정</div>
+            <div class="nav-bottom-main" id="etaText">0분</div>
+          </div>
+        </div>
+
+        <div class="nav-destination-info">
+          <div class="nav-dest-line">
+            <span class="nav-dest-pin">📍</span>
+            <span class="nav-dest-title" id="destTitle">목적지 1/1</span>
+          </div>
+          <div class="nav-dest-sub" id="destSub">서울특별시 ...</div>
+        </div>
+
+        <button id="completeStopBtn" class="nav-complete-btn">
+          ✓ 배송 완료
+        </button>
+      </div>
+    </section>
+
+    <!-- 4) DONE SCREEN -->
+    <section id="screen-done" class="screen screen-done hidden">
+      <div class="done-wrapper">
+        <!-- big green pill with check -->
+        <div class="done-pill">
+          <div class="done-pill-icon">✓</div>
+        </div>
+
+        <!-- title + summary text -->
+        <div class="done-main-title">배송 완료!</div>
+        <div class="done-main-sub" id="doneSummary">
+          총 0건의 배송을 완료했습니다
+        </div>
+
+        <!-- back button -->
+        <button id="backToMainBtn" class="done-main-btn">
+          메인으로 돌아가기
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
+  <!-- include your Kakao map JS & any OSRM helper scripts as before -->
+
+  <script>
+    /* === SIMPLE SCREEN STATE MANAGEMENT === */
+
+    const screens = {
+      home: document.getElementById("screen-home"),
+      loading: document.getElementById("screen-loading"),
+      nav: document.getElementById("screen-nav"),
+      done: document.getElementById("screen-done"),
+    };
+
+    function showScreen(name) {
+      for (const key in screens) {
+        screens[key].classList.add("hidden");
+      }
+      screens[name].classList.remove("hidden");
+    }
+
+    // Elements
+    const stopsInput     = document.getElementById("stopsInput");
+    const startRouteBtn  = document.getElementById("startRouteBtn");
+    const completeStopBtn= document.getElementById("completeStopBtn");
+    const backToMainBtn  = document.getElementById("backToMainBtn");
+    const navBackBtn     = document.getElementById("navBackBtn");
+
+    const navProgressText= document.getElementById("navProgressText");
+    const destTitle      = document.getElementById("destTitle");
+    const destSub        = document.getElementById("destSub");
+    const remainingDistance = document.getElementById("remainingDistance");
+    const etaText        = document.getElementById("etaText");
+    const navProgressFill = document.getElementById("navProgressFill");
+
+    const nextDistance          = document.getElementById("nextDistance");
+    const nextInstruction       = document.getElementById("nextInstruction");
+    const currentStepDistance   = document.getElementById("currentStepDistance");
+    const currentStepInstruction= document.getElementById("currentStepInstruction");
+    const stepAdvanceBtn        = document.getElementById("stepAdvanceBtn"); // now the '다음' button
+    const navArrow              = document.getElementById("navArrow");
+
+    const doneSummary    = document.getElementById("doneSummary");
+    const todayStopsCount= document.getElementById("todayStopsCount");
+
+    function refreshTodayStopsCountFromInput() {
+      if (!stopsInput || !todayStopsCount) return;
+      const count = stopsInput.value
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l.length > 0).length;
+      todayStopsCount.textContent = count;
+    }
+
+    // Route state
+    let routeData = null;          // full response from backend
+    let currentStopIndex = 0;      // which destination (0..n-1)
+    let totalStops = 0;
+    let completedStops = 0;
+    let currentStepIndex = 0;
+
+    let mapInitialized = false;
+    let kakaoMap = null;
+    let mainRoutePolyline = null;
+    let stepHighlightPolyline = null;
+    // [{ overlay, routePos, stopIndex, done }]
+    let stopOverlays = [];   // 번호 마커 저장용
+
+    function ensureMap() {
+      if (mapInitialized) return;
+      const mapContainer = document.getElementById("map");
+      kakaoMap = new kakao.maps.Map(mapContainer, {
+        center: new kakao.maps.LatLng(37.5665, 126.9780),
+        level: 7,
+      });
+      mapInitialized = true;
+    }
+
+    function renderRouteOnMap(routeData) {
+      if (!kakaoMap) return;
+
+      // Clear old line
+      if (mainRoutePolyline) {
+        mainRoutePolyline.setMap(null);
+        mainRoutePolyline = null;
+      }
+
+      // 기존 번호 마커 제거
+      if (stopOverlays.length) {
+        stopOverlays.forEach(o => o.setMap(null));
+        stopOverlays = [];
+      }
+
+      const steps = routeData.osrm_steps || routeData.osrm_turns || [];
+      if (!steps.length) return;
+
+      // Flatten all step polylines into one long list of coords
+      let fullRoadCoords = [];
+      steps.forEach((step) => {
+        const stepCoords = step.polyline || [];
+        if (!Array.isArray(stepCoords) || !stepCoords.length) return;
+
+        if (fullRoadCoords.length === 0) {
+          fullRoadCoords = stepCoords.slice();
+        } else {
+          const last = fullRoadCoords[fullRoadCoords.length - 1];
+          const first = stepCoords[0];
+          const same =
+            last &&
+            first &&
+            last.length === 2 &&
+            first.length === 2 &&
+            last[0] === first[0] &&
+            last[1] === first[1];
+
+          const startIdx = same ? 1 : 0;
+          for (let i = startIdx; i < stepCoords.length; i++) {
+            fullRoadCoords.push(stepCoords[i]);
+          }
+        }
+      });
+
+      if (!fullRoadCoords.length) return;
+
+      const path = fullRoadCoords.map(
+        ([lat, lon]) => new kakao.maps.LatLng(lat, lon)
+      );
+
+      mainRoutePolyline = new kakao.maps.Polyline({
+        map: kakaoMap,
+        path,
+        strokeWeight: 6,
+        strokeColor: "#f97316",
+        strokeOpacity: 0.9,
+        strokeStyle: "solid",
+      });
+
+      // === 번호 마커 추가 (방문 순서 기준 1,2,3,...) ===
+      if (routeData.stops && Array.isArray(routeData.stops)) {
+        const baseStops = routeData.stops;
+        // 방문 순서를 나타내는 배열이 있으면 사용, 없으면 0..N-1
+        const order =
+          (Array.isArray(routeData.route_indices) && routeData.route_indices.length === baseStops.length)
+            ? routeData.route_indices
+            : baseStops.map((_, i) => i);
+
+        stopOverlays = order.map((stopIdx, routePos) => {
+          const s = baseStops[stopIdx];
+          if (!s || s.lat == null || s.lon == null) return null;
+
+          const pos = new kakao.maps.LatLng(s.lat, s.lon);
+
+          // 0번 = 출발지, 1번부터 실제 목적지 번호
+          const isStart = (routePos === 0);
+          const label   = isStart ? "출발지" : String(routePos);
+          const classes = isStart ? "stop-marker stop-start" : "stop-marker";
+
+          const content = `<div class="${classes}">${label}</div>`;
+          const overlay = new kakao.maps.CustomOverlay({
+            position: pos,
+            content,
+            yAnchor: 1,
+            zIndex: 10,
+          });
+
+          overlay.setMap(kakaoMap);
+
+          return {
+            overlay,
+            routePos,   // 0,1,2,... in 방문 순서
+            stopIndex: stopIdx,
+            done: false,
+          };
+        }).filter(Boolean);
+      }
+
+      const bounds = new kakao.maps.LatLngBounds();
+      path.forEach((p) => bounds.extend(p));
+      if (!bounds.isEmpty()) {
+        kakaoMap.setBounds(bounds, 40, 40, 40, 40);
+      }
+    }
+
+    function markStopDone(routePos) {
+      if (!stopOverlays || routePos < 0) return;
+      const obj = stopOverlays[routePos];
+      if (!obj || obj.done) return;
+
+      obj.done = true;
+
+      // 0번 = 출발지, 1번부터 실제 목적지 번호
+      const isStart = (obj.routePos === 0);
+      const label   = isStart ? "출발지" : String(obj.routePos);
+      const classes = isStart ? "stop-marker stop-start stop-done"
+                              : "stop-marker stop-done";
+
+      const newHtml = `<div class="${classes}">${label}</div>`;
+      obj.overlay.setContent(newHtml);
+    }
+
+    function highlightCurrentStepOnMap() {
+      if (!kakaoMap || !routeData) return;
+
+      const steps = routeData.osrm_steps || routeData.osrm_turns || [];
+      if (!steps.length) return;
+
+      if (currentStepIndex < 0 || currentStepIndex >= steps.length) return;
+      const step = steps[currentStepIndex];
+      const coords = step.polyline || [];
+      if (!Array.isArray(coords) || !coords.length) return;
+
+      // 이전 하이라이트 제거
+      if (stepHighlightPolyline) {
+        stepHighlightPolyline.setMap(null);
+        stepHighlightPolyline = null;
+      }
+
+      const path = coords.map(([lat, lon]) => new kakao.maps.LatLng(lat, lon));
+
+      stepHighlightPolyline = new kakao.maps.Polyline({
+        map: kakaoMap,
+        path,
+        strokeWeight: 8,
+        strokeColor: "#38bdf8", // 파란색
+        strokeOpacity: 0.9,
+        strokeStyle: "solid",
+      });
+
+      // 현재 step 중심으로 보기
+      const bounds = new kakao.maps.LatLngBounds();
+      path.forEach(p => bounds.extend(p));
+      if (!bounds.isEmpty()) {
+        kakaoMap.setBounds(bounds, 40, 40, 40, 40);
+      }
+    }
+
+    // Promise wrapper for browser geolocation
+    function getCurrentPositionAsync(options) {
+      return new Promise((resolve) => {
+        if (!navigator.geolocation) {
+          console.warn("Geolocation not supported; starting from first typed stop.");
+          return resolve(null);
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => resolve(position),
+          (err) => {
+            console.warn("Geolocation error:", err);
+            resolve(null); // fall back gracefully
+          },
+          options
+        );
+      });
+    }
+
+    // Call backend to optimize route
+    async function requestOptimizedRoute() {
+      const raw = stopsInput.value
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l.length > 0);
+
+      if (raw.length === 0) {
+        alert("배송지를 한 개 이상 입력해주세요.");
+        return;
+      }
+
+      // 오늘 배송지 개수는 '목적지 수'만 보여주고, 현재 위치는 제외
+      todayStopsCount.textContent = raw.length;
+
+      showScreen("loading");
+
+      try {
+        // 1) 먼저 현재 위치 시도
+        let lines = [];
+        try {
+          const pos = await getCurrentPositionAsync({
+            enableHighAccuracy: true,
+            timeout: 8000,
+            maximumAge: 0,
+          });
+
+          if (pos) {
+            const { latitude, longitude } = pos.coords;
+            // 서버의 geocode_line() 은 "lat,lon" 형태를 그대로 받아서 Kakao 없이 사용함
+            // (현재 위치를 첫 번째 노드 = 출발지로 강제)
+            lines.push(`${latitude},${longitude} # 현재 위치`);
+          }
+        } catch (e) {
+          console.warn("Failed to obtain current position:", e);
+          // 실패해도 그냥 텍스트로만 경로 최적화
+        }
+
+        // 2) 나머지 배송지들을 그대로 뒤에 붙인다
+        lines = lines.concat(raw);
+
+        const API_BASE = "http://localhost:8000";  // FastAPI port
+
+        const res = await fetch(`${API_BASE}/optimize-by-name`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            lines: lines,
+            // 항상 index 0 = 현재 위치 (성공 시)
+            // 만약 GPS 실패하면, index 0 = 사용자가 입력한 첫 번째 배송지
+            start_index: 0,
+            end_index: lines.length - 1,  // 마지막 노드에서 끝나는 open path
+          }),
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text);
+        }
+
+        routeData = await res.json();
+        // Assume routeData has: stops, legs, osrm_steps, total_distance_m, total_time_s
+        totalStops = routeData.stops.length;
+        completedStops = 0;
+        currentStopIndex = 0;
+        currentStepIndex = 0;   // <- reset current step
+
+        // 1) Show the navigation screen so the map container has a real size
+        showScreen("nav");
+
+        // 2) Now create the Kakao map (only first time)
+        ensureMap();
+
+        // 3) Draw the OSRM route on the Kakao map
+        renderRouteOnMap(routeData);
+
+        // 4) Update navigation UI texts
+        updateNavUI();
+        highlightCurrentStepOnMap();
+
+        // 5) Tell Kakao map to recalc layout (important after showing a hidden div)
+        if (kakaoMap) {
+          kakao.maps.event.trigger(kakaoMap, "resize");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("경로 계산 중 오류가 발생했습니다: " + err.message);
+        showScreen("home");
+      }
+    }
+
+    function updateNavUI() {
+      if (!routeData) return;
+
+      const steps = routeData.osrm_steps || routeData.osrm_turns || [];
+
+      // 출발지(0번)를 제외한 실제 목적지 개수
+      const totalDestStops = Math.max(0, totalStops - 1);
+
+      // 현재 step 이 속한 leg_index 기준으로 "도착 노드"의 방문 순서를 계산
+      let destRoutePos = currentStopIndex; // fallback
+      if (steps.length && currentStepIndex >= 0 && currentStepIndex < steps.length) {
+        const curLeg = steps[currentStepIndex].leg_index ?? 0;
+        // leg 0 : 0→1 이동 → 도착 노드 routePos = 1
+        // leg 1 : 1→2 이동 → 도착 노드 routePos = 2 ...
+        destRoutePos = curLeg + 1;
+      }
+
+      // route 범위 안으로 클램프
+      if (totalStops > 1) {
+        // 0번은 출발지이므로 최소 1부터 목적지
+        destRoutePos = Math.max(1, Math.min(totalStops - 1, destRoutePos));
+      } else {
+        destRoutePos = 0; // 목적지가 아예 없는 경우
+      }
+      currentStopIndex = destRoutePos;
+
+      navProgressText.textContent = `${completedStops} / ${totalDestStops} 완료`;
+      if (navProgressFill) {
+        const ratio = totalDestStops > 0 ? completedStops / totalDestStops : 0;
+        navProgressFill.style.width = Math.min(100, ratio * 100) + "%";
+      }
+
+      // route_indices 로 실제 목적지 인덱스 가져오기
+      const baseStops = routeData.stops || [];
+      const order =
+        (Array.isArray(routeData.route_indices) && routeData.route_indices.length === baseStops.length)
+          ? routeData.route_indices
+          : baseStops.map((_, i) => i);
+
+      const destStopIdx = order[currentStopIndex] ?? 0;
+      const stop = baseStops[destStopIdx] || {};
+
+      if (currentStopIndex === 0) {
+        // 이론상 거의 안 오지만, 방어적으로 처리
+        destTitle.textContent = "출발지 (현재 위치)";
+      } else {
+        const destNumber = currentStopIndex; // 출발지=0, 첫 목적지=1 ...
+        const totalDestStops = Math.max(0, totalStops - 1);
+        destTitle.textContent = `목적지 ${destNumber}/${totalDestStops}`;
+      }
+
+      destSub.textContent = stop.label || stop.name || stop.address || "";
+
+      if (!steps.length) {
+        if (currentStepDistance)    currentStepDistance.textContent = "-";
+        if (currentStepInstruction) currentStepInstruction.textContent = "";
+        remainingDistance.textContent = "-";
+        etaText.textContent = "-";
+        if (nextDistance) nextDistance.textContent = "";
+        if (nextInstruction) nextInstruction.textContent = "";
+        if (navArrow) navArrow.textContent = "↑";
+        return;
+      }
+
+      // step 인덱스 안전 범위
+      if (currentStepIndex < 0) currentStepIndex = 0;
+      if (currentStepIndex >= steps.length) currentStepIndex = steps.length - 1;
+
+      const currentStep = steps[currentStepIndex];
+
+      // ---- 1) 왼쪽 보라 패널: 현재 step ----
+      // backend 가 distance_m(미터) 또는 distance_km(킬로미터)를 줄 수 있다고 가정
+      const curDistM =
+        typeof currentStep.distance_m === "number" ? currentStep.distance_m :
+        typeof currentStep.distance === "number" ? currentStep.distance :
+        (currentStep.distance_km ? currentStep.distance_km * 1000 : 0);
+
+      if (currentStepDistance) {
+        if (curDistM >= 1000) {
+          const km = curDistM / 1000;
+          currentStepDistance.textContent = km.toFixed(1);
+          // 단위는 이미 "m"으로 표시 중이지만, 필요하면 "km"로 바꾸고 싶을 수도 있음
+        } else {
+          currentStepDistance.textContent = Math.round(curDistM);
+        }
+      }
+
+      let curInstr = currentStep.instruction || currentStep.maneuver || "직진";
+
+      if (currentStepInstruction) {
+        currentStepInstruction.textContent = curInstr;
+      }
+
+      // Arrow shape based on instruction
+      if (navArrow) {
+        const lower = curInstr.toLowerCase();
+        if (lower.includes("left") || lower.includes("좌")) {
+          navArrow.textContent = "↰"; // or "↖"
+        } else if (lower.includes("right") || lower.includes("우")) {
+          navArrow.textContent = "↱"; // or "↗"
+        } else if (lower.includes("u-turn") || lower.includes("유턴")) {
+          navArrow.textContent = "↺";
+        } else {
+          navArrow.textContent = "↑";
+        }
+      }
+
+      // ---- 2) 남은 거리 / ETA (현재 목적지까지, 현재 step 기준) ----
+      let remainingMeters = 0;
+      let remainingSeconds = 0;
+
+      // leg_index 는 반드시 backend 에서 채워줘야 함
+      const currentLeg = currentStep.leg_index;
+
+      for (let i = currentStepIndex; i < steps.length; i++) {
+        const s = steps[i];
+
+        const legIndex = s.leg_index;
+        if (legIndex !== currentLeg) break;
+
+        const stepMeters =
+          typeof s.distance_m === "number" ? s.distance_m :
+          typeof s.distance === "number" ? s.distance :
+          (s.distance_km ? s.distance_km * 1000 : 0);
+        remainingMeters += stepMeters;
+
+        const stepSeconds =
+          typeof s.duration_s === "number" ? s.duration_s :
+          typeof s.duration === "number" ? s.duration :
+          (s.duration_min ? s.duration_min * 60 : 0);
+        remainingSeconds += stepSeconds;
+      }
+
+      // 화면 표시
+      if (remainingMeters >= 1000) {
+        const km = remainingMeters / 1000;
+        remainingDistance.textContent = km.toFixed(1) + " km";
+      } else {
+        remainingDistance.textContent = Math.round(remainingMeters) + " m";
+      }
+
+      const etaMin = Math.max(1, Math.round(remainingSeconds / 60));
+      etaText.textContent = etaMin + "분";
+
+      // ---- 3) 다음 step 미리보기 ----
+      const nextIdx = currentStepIndex + 1;
+      if (nextIdx < steps.length) {
+        const nextStep = steps[nextIdx];
+        const nextDistM =
+          nextStep.distance_m ??
+          (nextStep.distance_km ? nextStep.distance_km * 1000 :
+           nextStep.distance ?? 0);
+        const instr = nextStep.instruction || nextStep.maneuver || "직진";
+
+        if (nextDistance)    nextDistance.textContent    = Math.round(nextDistM) + " m";
+        if (nextInstruction) nextInstruction.textContent = instr;
+      } else {
+        if (nextDistance)    nextDistance.textContent    = "";
+        if (nextInstruction) nextInstruction.textContent = "목적지 부근";
+      }
+    }
+
+    function goToNextStep() {
+      if (!routeData) return;
+      const steps = routeData.osrm_steps || routeData.osrm_turns || [];
+      if (!steps.length) return;
+
+      // 현재 step 이 속한 leg 와 그 leg 의 마지막 step 찾기
+      const curStep = steps[currentStepIndex];
+      const curLeg  = curStep.leg_index ?? 0;
+
+      let lastIdxInLeg = currentStepIndex;
+      for (let i = currentStepIndex + 1; i < steps.length; i++) {
+        const legIdx = steps[i].leg_index ?? 0;
+        if (legIdx === curLeg) {
+          lastIdxInLeg = i;
+        } else {
+          break;  // 다음 leg 로 넘어간 순간 종료
+        }
+      }
+
+      // 현재 leg 의 마지막 step 이고, 아직 '배송 완료'를 안 눌렀으면 다음으로 못 감
+      if (currentStepIndex === lastIdxInLeg) {
+        const destRoutePos = curLeg + 1; // 이 leg 의 도착 목적지 (0번은 출발지)
+        const stopObj = stopOverlays && stopOverlays[destRoutePos];
+        const isDone  = !!(stopObj && stopObj.done);
+
+        if (!isDone) {
+          alert("이 목적지의 '배송 완료'를 누른 후에만 다음으로 이동할 수 있습니다.");
+          return;
+        }
+      }
+
+      // 여기까지 왔으면 다음 step 으로 이동해도 됨
+      if (currentStepIndex < steps.length - 1) {
+        currentStepIndex++;
+      } else {
+        currentStepIndex = steps.length - 1;
+      }
+
+      updateNavUI();
+      highlightCurrentStepOnMap();
+    }
+
+    // When driver completes a stop
+    function completeCurrentStop() {
+      if (!routeData) return;
+
+      const steps = routeData.osrm_steps || routeData.osrm_turns || [];
+      if (!steps.length || currentStepIndex < 0 || currentStepIndex >= steps.length) return;
+
+      // 현재 step 기준으로, 이 leg 의 마지막 step 인지 확인
+      const curStep = steps[currentStepIndex];
+      const curLeg  = curStep.leg_index ?? 0;
+
+      let lastIdxInLeg = currentStepIndex;
+      for (let i = currentStepIndex + 1; i < steps.length; i++) {
+        const legIdx = steps[i].leg_index ?? 0;
+        if (legIdx === curLeg) {
+          lastIdxInLeg = i;
+        } else {
+          break; // 다음 leg 로 넘어가면 종료
+        }
+      }
+
+      // 아직 목적지에 도착하지 않은 step 이면 배송완료 금지
+      if (currentStepIndex !== lastIdxInLeg) {
+        alert("해당 목적지에 도착한 후에만 '배송 완료'를 눌러주세요.");
+        return;
+      }
+
+      // 여기까지 왔다는 것은 '도착 step' 위에 있다는 뜻
+      // 이 leg 의 도착 지점은 방문 순서(curLeg+1)에 해당 (0번은 출발지)
+      let destRoutePos = curLeg + 1;
+
+      // 마커를 초록색으로 변경 (출발지는 0번이므로 자연스럽게 건너뛰게 됨)
+      markStopDone(destRoutePos);
+
+      // 출발지(0번)를 제외한 완료된 목적지 개수 다시 계산
+      completedStops = stopOverlays.filter(o => o && o.done && o.routePos > 0).length;
+
+      const totalDestStops = Math.max(0, totalStops - 1);
+
+      // 모든 목적지 완료 시 완료 화면으로
+      if (completedStops >= totalDestStops) {
+        doneSummary.textContent = `총 ${totalDestStops}건의 배송을 완료했습니다`;
+        showScreen("done");
+        return;
+      }
+
+      // step/leg 는 그대로, UI 만 업데이트
+      updateNavUI();
+      highlightCurrentStepOnMap();
+    }
+
+    // Event bindings
+    startRouteBtn.addEventListener("click", requestOptimizedRoute);
+    completeStopBtn.addEventListener("click", completeCurrentStop);
+    backToMainBtn.addEventListener("click", () => showScreen("home"));
+    navBackBtn.addEventListener("click", () => showScreen("home"));
+    if (stepAdvanceBtn) {
+      stepAdvanceBtn.addEventListener("click", goToNextStep);
+    }
+    // 홈 화면에서 입력할 때마다 오늘의 배송지 개수 자동 업데이트
+    stopsInput.addEventListener("input", refreshTodayStopsCountFromInput);
+
+    // 페이지 로드 시 초기 값 반영
+    refreshTodayStopsCountFromInput();
+
+    // Simple clock for home screen
+    function updateClock() {
+      const now = new Date();
+      const hour24 = now.getHours();
+      const ampm   = hour24 < 12 ? "오전" : "오후";
+      const hour   = hour24 % 12 || 12;
+      const min    = String(now.getMinutes()).padStart(2, "0");
+      document.getElementById("homeTime").textContent = `${ampm} ${hour}:${min}`;
+
+      const weekdayNames = ["일", "월", "화", "수", "목", "금", "토"];
+      const month = now.getMonth() + 1;
+      const date  = now.getDate();
+      const day   = weekdayNames[now.getDay()];
+      document.getElementById("homeDate").textContent =
+        `${month}월 ${date}일 (${day})`;
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+  </script>
+</body>
+</html>
