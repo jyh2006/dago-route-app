@@ -1045,7 +1045,11 @@
 
       // 기존 번호 마커 제거
       if (stopOverlays.length) {
-        stopOverlays.forEach(o => o.setMap(null));
+        stopOverlays.forEach(o => {
+          if (o && o.overlay && typeof o.overlay.setMap === "function") {
+            o.overlay.setMap(null);
+          }
+        });
         stopOverlays = [];
       }
 
@@ -1592,3 +1596,4 @@
   </script>
 </body>
 </html>
+
