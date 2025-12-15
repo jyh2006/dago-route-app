@@ -351,39 +351,33 @@
     }
 
     .nav-next-step-box {
-          position: absolute;
-          bottom: 24px;
-          left: 16px;
-          right: 16px;
-          border-radius: 14px;
-          padding: 10px;
-          font-size: 13px;
-    
-          border: none;
-          outline: none;
-          cursor: pointer;
-    
-          display: flex;
-          flex-direction: row;          /* ← 가로로 배치 */
-          align-items: center;
-          gap: 8px;
-    
-          text-align: left;
-          background: rgba(255,255,255,0.2);
-          box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-          color: #ffffff;               /* ← 글자 흰색 */
+      position: absolute;
+      bottom: 24px;
+      left: 16px;
+      right: 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,0.15);
+      padding: 10px;
+      font-size: 13px;
+
+      /* NEW for button behaviour / nicer look */
+      border: none;
+      outline: none;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+      background: rgba(255,255,255,0.2);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.25);
     }
-    
+
     .nav-next-label {
-          opacity: 0.9;
-          margin-bottom: 0;             /* 세로 간격 제거 */
-          font-weight: 600;
+      opacity: 0.85;
+      margin-bottom: 2px;
     }
-    
+
     .nav-next-info {
-          display: flex;
-          align-items: baseline;
-          font-weight: 500;
+      font-weight: 500;
     }
 
     /* map */
@@ -511,11 +505,11 @@
     }
 
     .nav-progress-track {
-          width: 100%;
-          height: 4px;
-          background: transparent;   /* ← 흰/회색 배경 제거 */
-          border-radius: 999px;
-          overflow: hidden;
+      width: 100%;
+      height: 4px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
     }
 
     .nav-progress-fill {
@@ -772,7 +766,7 @@
     }
 
     .nav-top {
-        padding: 0;              /* ← 위 여백 제거 */
+      padding: 12px 12px 8px;
     }
 
     .nav-top-row {
@@ -783,12 +777,7 @@
       padding: 6px 12px;
       font-size: 11px;
     }
-    
-    .nav-progress-track {
-        background: transparent; /* 혹시 덮어쓰기용 한 번 더 */
-        height: 4px;
-    }
-    
+
     .nav-main {
       flex: 1;
       display: grid;                  /* 2-column layout: left bar + map */
@@ -1002,7 +991,8 @@
           <button class="nav-next-step-box" id="stepAdvanceBtn" type="button">
             <div class="nav-next-label">다음</div>
             <div class="nav-next-info">
-              <span id="nextDistance">-</span><span id="nextInstruction"></span>
+              <span id="nextDistance">-</span>
+              <span id="nextInstruction"></span>
             </div>
           </button>
         </div>
@@ -1826,9 +1816,9 @@
           (nextStep.distance_km ? nextStep.distance_km * 1000 :
            nextStep.distance ?? 0);
         const instr = nextStep.instruction || nextStep.maneuver || "직진";
-      
-        if (nextDistance)    nextDistance.textContent    = Math.round(nextDistM) + "m";   // 공백 제거
-        if (nextInstruction) nextInstruction.textContent = "/" + instr;                   // 슬래시 포함
+
+        if (nextDistance)    nextDistance.textContent    = Math.round(nextDistM) + " m";
+        if (nextInstruction) nextInstruction.textContent = instr;
       } else {
         if (nextDistance)    nextDistance.textContent    = "";
         if (nextInstruction) nextInstruction.textContent = "목적지 부근";
@@ -1984,7 +1974,6 @@
   </script>
 </body>
 </html>
-
 
 
 
