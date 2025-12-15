@@ -835,17 +835,22 @@
       right: 6px;
       bottom: 16px;
       border-radius: 16px;
-      padding: 10px 10px 9px;            /* 살짝 더 크게 */
+      padding: 8px 8px 7px;
       font-size: 11px;
       background: rgba(255,255,255,0.25);
       color: #ffffff;
       box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+      box-sizing: border-box;      /* 패딩 포함해서 폭 계산 */
+      max-width: 100%;             /* 왼쪽 패널 범위 넘지 않게 */
+      overflow: hidden;            /* 내부 텍스트가 pill 밖으로 안 나가게 */
     }
-    
+
     /* 3줄 레이아웃 (다음 / 거리 / 도로명) */
     .nav-next-label,
     .nav-next-distance,
     .nav-next-instruction {
+      display: block;          /* 한 줄씩 배치 */
+      width: 100%;             /* 버튼 안에서만 사용 */
       font-size: 11px;
     }
     
@@ -860,9 +865,9 @@
     }
     
     .nav-next-instruction {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: nowrap;     /* 한 줄 유지 */
+      overflow: hidden;        /* pill 밖 텍스트 숨김 */
+      text-overflow: ellipsis; /* 너무 길면 … 처리 */
     }
 
     .nav-map-wrapper {
@@ -2011,6 +2016,7 @@
   </script>
 </body>
 </html>
+
 
 
 
