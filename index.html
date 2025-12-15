@@ -302,7 +302,7 @@
     .nav-main {
       flex: 1;
       display: grid;
-      grid-template-columns: 120px minmax(0, 1fr) 64px;
+      grid-template-columns: 120px minmax(0, 1fr);  /* 오른쪽 column 제거 */
       gap: 0;
     }
 
@@ -313,14 +313,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      padding: 40px 16px 24px;
+      justify-content: center;          /* 중앙 정렬로 변경 */
       box-sizing: border-box;
-
-      /* NEW: make the '다음' button position relative to this panel
-         and reserve space at the bottom so it doesn't clash visually */
+    
       position: relative;
-      padding-bottom: 90px;
+      padding: 60px 16px 90px;          /* 위 여백을 더 주고, 아래는 '다음' 버튼 공간 */
     }
 
     .nav-direction-card {
@@ -385,6 +382,7 @@
 
     /* map */
     .nav-map-wrapper {
+      position: relative;       /* 오른쪽 툴바와 진행 pill을 이 영역 기준으로 배치 */
       background: #f8f9fa;
     }
 
@@ -792,7 +790,7 @@
     .nav-left {
       grid-column: 1;
       grid-row: 1;
-      padding: 56px 6px 18px;  /* extra top space for back button */
+      padding: 72px 6px 90px;  /* 위 여백 더 늘리고, 아래는 '다음' 버튼 공간 확보 */
       box-sizing: border-box;
     }
 
@@ -998,25 +996,24 @@
             </div>
           </button>
         </div>
-
-
-        <!-- Center: MAP -->
+        
+        <!-- Center: MAP + floating controls -->
         <div class="nav-map-wrapper">
           <div class="nav-progress-pill-overlay">
             <span id="navProgressText">0 / 0 완료</span>
           </div>
+      
           <div id="map" class="nav-map"></div>
-        </div>
-
-        <!-- Right: vertical icons (stubbed) -->
-        <div class="nav-right-toolbar">
-          <button class="toolbar-btn" id="toolbarIncidentBtn">🚧</button>
-          <button class="toolbar-btn" id="toolbarWarningBtn">⚠️</button>
-          <button class="toolbar-btn" id="toolbarInfoBtn">ℹ️</button>
-          <button class="toolbar-btn" id="toolbarMapOverviewBtn">🗺️</button>
+      
+          <!-- Right toolbar now 지도 위에 떠 있게 -->
+          <div class="nav-right-toolbar">
+            <button class="toolbar-btn" id="toolbarIncidentBtn">🚧</button>
+            <button class="toolbar-btn" id="toolbarWarningBtn">⚠️</button>
+            <button class="toolbar-btn" id="toolbarInfoBtn">ℹ️</button>
+            <button class="toolbar-btn" id="toolbarMapOverviewBtn">🗺️</button>
+          </div>
         </div>
       </div>
-      
       <!-- 전체 배송지 경로 오버뷰 모달 -->
       <div id="overviewModal" class="overview-modal hidden">
         <div class="overview-inner">
@@ -1977,6 +1974,7 @@
   </script>
 </body>
 </html>
+
 
 
 
