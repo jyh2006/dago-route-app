@@ -1333,7 +1333,7 @@
             map: overviewMap,
             path: donePath,
             strokeWeight: 6,
-            strokeColor: "#12b886",   // same green as main map
+            strokeColor: "#22c55e",  
             strokeOpacity: 0.9,
             strokeStyle: "solid",
           });
@@ -1358,7 +1358,7 @@
     
         // 색상: 현재 / 완료 / 대기
         let bg = "#4c55ff"; // 기본 = 대기
-        if (stopOverlays[routePos]?.done) bg = "#12b886";
+        if (stopOverlays[routePos]?.done) bg = "#22c55e";
         if (routePos === currentStopIndex) bg = "#fbbf24";
     
         const content = `
@@ -1601,7 +1601,7 @@
         map: kakaoMap,
         path,
         strokeWeight: 6,
-        strokeColor: "#12b886",   // 초록색 (완료 구간)
+        strokeColor: "#22c55e",   // 초록색 (완료 구간)
         strokeOpacity: 0.9,
         strokeStyle: "solid",
       });
@@ -2029,6 +2029,7 @@
   </script>
 </body>
 </html>
+
 
 
 
