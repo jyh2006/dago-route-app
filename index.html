@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
   <title>Multi-stop Route Optimizer</title>
 
   <!-- Kakao Map JS SDK (use your JavaScript key here, NOT the REST key) -->
@@ -937,6 +940,16 @@
       border-radius: 999px;
       padding: 14px 20px;
       font-size: 15px;
+    }
+    .stops-textarea {
+      font-size: 16px;    /* 기본은 14px, 모바일에서만 16px로 오버라이드 */
+    }
+    /* 모바일에서 버튼 더블탭 줌 방지 */
+    .primary-button,
+    .secondary-button,
+    .nav-next-step-box,
+    .nav-complete-btn {
+      touch-action: manipulation;  /* 더블탭을 줌이 아니라 클릭으로만 처리 */
     }
   }
   </style>
@@ -2016,6 +2029,7 @@
   </script>
 </body>
 </html>
+
 
 
 
