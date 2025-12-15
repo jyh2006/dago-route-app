@@ -370,16 +370,30 @@
       background: rgba(255,255,255,0.2);
       box-shadow: 0 6px 14px rgba(0,0,0,0.25);
     }
-
+    .nav-next-top {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    
     .nav-next-label {
-      opacity: 0.85;
-      margin-bottom: 2px;
+      opacity: 0.9;
+      font-size: 13px;
     }
-
-    .nav-next-info {
-      font-weight: 500;
+    
+    .nav-next-distance {
+      font-size: 13px;
+      font-weight: 600;
     }
-
+    
+    .nav-next-instruction {
+      margin-top: 2px;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
     /* map */
     .nav-map-wrapper {
       position: relative;       /* 오른쪽 툴바와 진행 pill을 이 영역 기준으로 배치 */
@@ -825,6 +839,22 @@
       color: #ffffff;                 /* 글자 흰색 */
       box-shadow: 0 6px 14px rgba(0,0,0,0.25);
     }
+    
+    .nav-next-top {
+      font-size: 11px;
+    }
+    
+    .nav-next-label {
+      font-size: 11px;
+    }
+    
+    .nav-next-distance {
+      font-size: 11px;
+    }
+    
+    .nav-next-instruction {
+      font-size: 11px;
+    }
 
     .nav-map-wrapper {
       grid-column: 2;
@@ -989,11 +1019,11 @@
 
           <!-- 다음 step 미리보기 -->
           <button class="nav-next-step-box" id="stepAdvanceBtn" type="button">
-            <div class="nav-next-label">다음</div>
-            <div class="nav-next-info">
-              <span id="nextDistance">-</span>
-              <span id="nextInstruction"></span>
+            <div class="nav-next-top">
+              <span class="nav-next-label">다음</span>
+              <span id="nextDistance" class="nav-next-distance">-</span>
             </div>
+            <div id="nextInstruction" class="nav-next-instruction"></div>
           </button>
         </div>
         
@@ -1817,7 +1847,7 @@
            nextStep.distance ?? 0);
         const instr = nextStep.instruction || nextStep.maneuver || "직진";
 
-        if (nextDistance)    nextDistance.textContent    = Math.round(nextDistM) + " m";
+        if (nextDistance)    nextDistance.textContent    = Math.round(nextDistM) + "m";
         if (nextInstruction) nextInstruction.textContent = instr;
       } else {
         if (nextDistance)    nextDistance.textContent    = "";
@@ -1974,6 +2004,7 @@
   </script>
 </body>
 </html>
+
 
 
 
