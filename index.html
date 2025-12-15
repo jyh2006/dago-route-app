@@ -355,21 +355,21 @@
       bottom: 24px;
       left: 16px;
       right: 16px;
-      border-radius: 14px;
-      background: rgba(255,255,255,0.15);
-      padding: 10px;
-      font-size: 13px;
-
-      /* NEW for button behaviour / nicer look */
+      border-radius: 16px;
+      background: rgba(255,255,255,0.18);
+      padding: 12px 14px;                 
+      font-size: 14px;
+    
       border: none;
       outline: none;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       text-align: left;
-      background: rgba(255,255,255,0.2);
+      color: #ffffff;                   
       box-shadow: 0 6px 14px rgba(0,0,0,0.25);
     }
+    
     .nav-next-top {
       display: flex;
       align-items: baseline;
@@ -377,18 +377,20 @@
     }
     
     .nav-next-label {
-      opacity: 0.9;
       font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;                 
     }
     
     .nav-next-distance {
-      font-size: 13px;
-      font-weight: 600;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 1px;                
     }
     
     .nav-next-instruction {
-      margin-top: 2px;
       font-size: 12px;
+      opacity: 0.9;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -826,34 +828,41 @@
     .nav-distance-sub {
       font-size: 13px;
     }
-
+    
     .nav-next-step-box {
       position: absolute;
       left: 6px;
       right: 6px;
       bottom: 16px;
-      border-radius: 14px;
-      padding: 8px;
+      border-radius: 16px;
+      padding: 10px 10px 9px;            /* 살짝 더 크게 */
       font-size: 11px;
       background: rgba(255,255,255,0.25);
-      color: #ffffff;                 /* 글자 흰색 */
+      color: #ffffff;
       box-shadow: 0 6px 14px rgba(0,0,0,0.25);
     }
     
-    .nav-next-top {
+    /* 3줄 레이아웃 (다음 / 거리 / 도로명) */
+    .nav-next-label,
+    .nav-next-distance,
+    .nav-next-instruction {
       font-size: 11px;
     }
     
     .nav-next-label {
-      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 1px;
     }
     
     .nav-next-distance {
-      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 1px;
     }
     
     .nav-next-instruction {
-      font-size: 11px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .nav-map-wrapper {
@@ -1019,10 +1028,8 @@
 
           <!-- 다음 step 미리보기 -->
           <button class="nav-next-step-box" id="stepAdvanceBtn" type="button">
-            <div class="nav-next-top">
-              <span class="nav-next-label">다음</span>
-              <span id="nextDistance" class="nav-next-distance">-</span>
-            </div>
+            <div class="nav-next-label">다음</div>
+            <div id="nextDistance" class="nav-next-distance">-</div>
             <div id="nextInstruction" class="nav-next-instruction"></div>
           </button>
         </div>
@@ -2004,6 +2011,7 @@
   </script>
 </body>
 </html>
+
 
 
 
