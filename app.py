@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Tuple
 
+import os
 import math
 import requests
 from itertools import permutations
@@ -16,12 +17,12 @@ from ortools.constraint_solver import pywrapcp, routing_enums_pb2
 
 app = FastAPI(title="Multi-stop Route Optimizer")
 
+# In production (Render, etc.), this will allow your GitHub Pages frontend
+# to call the backend without CORS problems. For stricter security you can
+# replace ["*"] with an explicit list of origins later.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://127.0.0.1:8080",
-        "http://localhost:8080",
-    ],
+    allow_origins=["*"],  # or e.g. ["https://<your-username>.github.io"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -151,7 +152,6 @@ def solve_tsp(locations: List[Location], start_index: int, end_index: Optional[i
     search_parameters.first_solution_strategy = (
         routing_enums_pb2.FirstSolutionStrategy.PATH_CHEAPEST_ARC
     )
-    # Improve the first solution via local search
     search_parameters.local_search_metaheuristic = (
         routing_enums_pb2.LocalSearchMetaheuristic.GUIDED_LOCAL_SEARCH
     )
@@ -202,11 +202,11 @@ def optimize_core(locations: List[Location], start_index: int, end_index: Option
 
 
 # -----------------------------------------------------------------------------
-# Geocoding via Nominatim (OpenStreetMap)
+# Geocoding via Kakao Local API
 # -----------------------------------------------------------------------------
 
-# at top of app.py
-KAKAO_REST_API_KEY = "4c7b220b34f3fca0fe29501380a7262d"  # just the key, no "KakaoAK "
+# Kakao REST API key is loaded from environment for security
+KAKAO_REST_API_KEY = os.getenv("KAKAO_REST_API_KEY")  # no "KakaoAK " prefix
 
 GEOCODE_CACHE: Dict[str, Tuple[float, float, str]] = {}
 
@@ -240,8 +240,8 @@ def geocode_line(raw_line: str) -> Tuple[float, float, str]:
         lat, lon, label = GEOCODE_CACHE[line]
         return lat, lon, label
 
-    # 4) Safety: key must be set and not include 'KakaoAK '
-    if not KAKAO_REST_API_KEY or KAKAO_REST_API_KEY.startswith("YOUR_"):
+    # 4) Ensure Kakao key present
+    if not KAKAO_REST_API_KEY:
         raise HTTPException(
             status_code=500,
             detail="Kakao REST API key not set in server. Please configure KAKAO_REST_API_KEY.",
@@ -294,7 +294,7 @@ def geocode_line(raw_line: str) -> Tuple[float, float, str]:
         if last2 not in candidates:
             candidates.append(last2)
 
-    # Optionally you can also try just the last token
+    # Last token
     if len(tokens) >= 1:
         last1 = tokens[-1]
         if last1 not in candidates:
@@ -340,7 +340,6 @@ def geocode_line(raw_line: str) -> Tuple[float, float, str]:
     return lat, lon, label
 
 
-
 # -----------------------------------------------------------------------------
 # OSRM route & step fetching
 # -----------------------------------------------------------------------------
@@ -352,7 +351,7 @@ def fetch_osrm_steps(route_coords: List[Tuple[float, float]]):
     route_coords: list of (lat, lon) in order of the path.
     Returns:
       osrm_steps: list of dicts
-          { instruction, distance_m, duration_s, polyline: [[lat,lon], ...] }
+          { instruction, distance_m, duration_s, polyline: [[lat,lon], ...], leg_index }
     """
     if len(route_coords) < 2:
         return []

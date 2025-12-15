@@ -1041,7 +1041,7 @@
         // 2) 나머지 배송지들을 그대로 뒤에 붙인다
         lines = lines.concat(raw);
 
-        const API_BASE = "http://localhost:8000";  // FastAPI port
+        const API_BASE = "https://dago-route-app.onrender.com";  // FastAPI port
 
         const res = await fetch(`${API_BASE}/optimize-by-name`, {
           method: "POST",
